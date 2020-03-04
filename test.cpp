@@ -1,13 +1,19 @@
 #include<iostream>
 #include"thread_pool.h"
 using namespace std;
-
+#define _SECOND_
 #ifdef _SECOND_
 #define MAX  10000
-//第一个元素为当前数组大小
+// 第一个元素为当前数组大小
 int func(int a){
     return a + 1;
 }
+
+
+void* func (void* ptr){
+
+}
+
 void test2(){
     // 创建任务
     task_t<int, int>* tt[MAX];
@@ -22,6 +28,7 @@ void test2(){
         cout << a << endl;
         delete tt[i];
     }
+    sleep(100);
     cout<< "end" << endl;
     delete pool;
 }
