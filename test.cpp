@@ -1,6 +1,7 @@
 #include<iostream>
 #include"thread_pool.h"
 using namespace std;
+
 #ifdef _SECOND_
 #define MAX  10000
 // 第一个元素为当前数组大小
@@ -72,6 +73,7 @@ void test1(){
     cout<< "end" << endl;
     delete pool;
 }
+
 #endif
 int main(){
 #ifdef _FIRST_
