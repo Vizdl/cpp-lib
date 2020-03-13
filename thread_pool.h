@@ -279,21 +279,23 @@ private :
 
 
 // 
-template<typename parameter_name, typename result_name>
+template<typename parameter_name, typename result_name, 
+typename task_type = task_t<parameter_name, result_name>,
+typename thread_type = thread<parameter_name, result_name>>
 class thread_pool{
 public:
 #define THREAD_INIT_SIZE sysconf( _SC_NPROCESSORS_CONF)
     // 构造和析构函数
     thread_pool()
-    : task_queue(new safe_queue<task_t<parameter_name, result_name>*>()),
-     thread_queue(new safe_queue<thread<parameter_name, result_name>*>()),
+    : task_queue(new safe_queue<task_type*>()),
+     thread_queue(new safe_queue<thread_type*>()),
      is_alive(true){
          // 初始化线程池的锁
         pthread_mutex_init(&mutex, NULL);
 
         // 往线程队列添加线程
         for (int i = 0; i < THREAD_INIT_SIZE; i++){
-            thread<parameter_name, result_name>* t = new thread<parameter_name, result_name>(task_queue);
+            thread_type* t = new thread_type(task_queue);
             thread_queue->push(t); 
         }
     }
@@ -303,7 +305,7 @@ public:
     }
 
     // 功能函数
-    void add_task(task_t<parameter_name, result_name>* task){
+    void add_task(task_type* task){
         pthread_mutex_lock(&mutex);
         if (is_alive)
             task_queue->push(task);
@@ -316,7 +318,7 @@ public:
         pthread_mutex_lock(&mutex);
         if (is_alive){
             // 把阻塞在任务队列上的线程用信号杀死,其他正在执行任务的线程只需要设置延时死亡就可以了。
-            thread<parameter_name, result_name>* now_pthread;
+            thread_type* now_pthread;
             while (!thread_queue->empty()){
                 now_pthread = thread_queue->pop();
                 // 获取当前tid
@@ -335,8 +337,8 @@ public:
     }
 
 private:
-    safe_queue<task_t<parameter_name, result_name>*>* task_queue; // 安全  线程队列
-    safe_queue<thread<parameter_name, result_name>*>* thread_queue; // 
+    safe_queue<task_type*>* task_queue; // 安全  线程队列
+    safe_queue<thread_type*>* thread_queue; // 
     bool is_alive; // 线程池是否活着
     pthread_mutex_t mutex; // 主要用来保护is_alive状态的。
 }; 
