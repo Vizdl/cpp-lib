@@ -9,22 +9,27 @@ LIB = -I ${INCLUDE_DIR}
 CFLAGS = -c ${LIB}
 LDFLAGS = ${SO} -L ./lib 
 DOUBLE_BUFF_QUEUE_OBJS = ${BUILD_DIR}/double_buff_queue_test.o
-THREAD_POOLOBJS = ${BUILD_DIR}/thread_pool_test.o
-TESTING_BIN = ${BIN_DIR}/thread_pool_test ${BIN_DIR}/double_buff_queue_test
+THREAD_POOL_OBJS = ${BUILD_DIR}/thread_pool_test.o
+spin_lock_objs = ${BUILD_DIR}/spin_lock_test.o
 
+TESTING_BIN = ${BIN_DIR}/thread_pool_test ${BIN_DIR}/double_buff_queue_test ${BIN_DIR}/spin_lock_test
 
 all : ${TESTING_BIN}
 
 # bin
 ${BIN_DIR}/double_buff_queue_test : ${DOUBLE_BUFF_QUEUE_OBJS}
 	${LD} ${LDFLAGS} ${DOUBLE_BUFF_QUEUE_OBJS} -o $@
-${BIN_DIR}/thread_pool_test : ${THREAD_POOLOBJS}
-	${LD} ${LDFLAGS} ${THREAD_POOLOBJS} -o $@
+${BIN_DIR}/thread_pool_test : ${THREAD_POOL_OBJS}
+	${LD} ${LDFLAGS} ${THREAD_POOL_OBJS} -o $@
+${BIN_DIR}/spin_lock_test : ${spin_lock_objs}
+	${LD} ${LDFLAGS} ${THREAD_POOL_OBJS} -o $@
 
 # testing
 ${BUILD_DIR}/double_buff_queue_test.o : ${TESTING_DIR}/double_buff_queue_test.cpp ${INCLUDE_DIR}/double_buff_queue.h
 	${CC} ${CFLAGS} $< -o $@
 ${BUILD_DIR}/thread_pool_test.o : ${TESTING_DIR}/thread_pool_test.cpp ${INCLUDE_DIR}/thread_pool.h
+	${CC} ${CFLAGS} $< -o $@
+${BUILD_DIR}/spin_lock_test.o : ${TESTING_DIR}/spin_lock_test.cpp ${INCLUDE_DIR}/spin_lock.h
 	${CC} ${CFLAGS} $< -o $@
 
 clean : ${INCLUDE_DIR}
