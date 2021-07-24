@@ -8,14 +8,14 @@ SO = -lpthread
 LIB = -I ${INCLUDE_DIR}
 CFLAGS = -c ${LIB}
 LDFLAGS = ${SO} -L ./lib 
-SAFE_QUEUE_OBJS = ${BUILD_DIR}/safe_queue_test.o
+double_buff_queue_OBJS = ${BUILD_DIR}/double_buff_queue_test.o
 
 # bin
-${BIN_DIR}/safe_queue_test : ${INCLUDE_DIR}/safe_queue.h ${SAFE_QUEUE_OBJS}
-	${LD} ${LDFLAGS} ${SAFE_QUEUE_OBJS} -o $@
+${BIN_DIR}/double_buff_queue_test : ${INCLUDE_DIR}/double_buff_queue.h ${double_buff_queue_OBJS}
+	${LD} ${LDFLAGS} ${double_buff_queue_OBJS} -o $@
 
 # testing
-${BUILD_DIR}/safe_queue_test.o : ${TESTING_DIR}/safe_queue_test.cpp ${INCLUDE_DIR}/safe_queue.h
+${BUILD_DIR}/double_buff_queue_test.o : ${TESTING_DIR}/double_buff_queue_test.cpp ${INCLUDE_DIR}/double_buff_queue.h
 	${CC} ${CFLAGS} $< -o $@
 
 clean : ${INCLUDE_DIR}

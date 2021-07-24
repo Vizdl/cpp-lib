@@ -1,10 +1,10 @@
-#include "safe_queue.h"
+#include "double_buff_queue.h"
 #include <pthread.h>
 #include <iostream>
 #include <signal.h>
 using namespace std;
 
-safe_queue<int> que;
+double_buff_queue<int> que;
 
 void* read(void* data){
     while (true) cout << que.pop() <<  " ";
