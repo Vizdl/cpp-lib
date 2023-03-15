@@ -13,9 +13,10 @@ THREAD_POOL_OBJS = ${BUILD_DIR}/thread_pool_test.o
 SPIN_LOCK_OBJS = ${BUILD_DIR}/spin_lock_test.o
 RW_LOCK_OBJS = ${BUILD_DIR}/rw_lock_test.o
 ATOMIC_OBJS = ${BUILD_DIR}/atomic_test.o
+SAFE_QUEUE_OBJS = ${BUILD_DIR}/safe_queue_test.o
 
 TESTING_BIN = ${BIN_DIR}/thread_pool_test ${BIN_DIR}/double_buff_queue_test ${BIN_DIR}/spin_lock_test \
-	${BIN_DIR}/rw_lock_test ${BIN_DIR}/atomic_test 
+	${BIN_DIR}/rw_lock_test ${BIN_DIR}/atomic_test ${BIN_DIR}/safe_queue_test
 
 all : ${TESTING_BIN}
 
@@ -30,17 +31,21 @@ ${BIN_DIR}/rw_lock_test : ${RW_LOCK_OBJS}
 	${LD} ${THREAD_POOL_OBJS} -o $@ ${LDFLAGS}
 ${BIN_DIR}/atomic_test : ${ATOMIC_OBJS}
 	${LD} ${ATOMIC_OBJS} -o $@ ${LDFLAGS}
+${BIN_DIR}/safe_queue_test : ${SAFE_QUEUE_OBJS}
+	${LD} ${SAFE_QUEUE_OBJS} -o $@ ${LDFLAGS}
 
 # testing
-${BUILD_DIR}/double_buff_queue_test.o : ${TESTING_DIR}/double_buff_queue_test.cpp ${INCLUDE_DIR}/double_buff_queue.h
+${DOUBLE_BUFF_QUEUE_OBJS} : ${TESTING_DIR}/double_buff_queue_test.cpp ${INCLUDE_DIR}/double_buff_queue.h
 	${CC} ${CFLAGS} $< -o $@
-${BUILD_DIR}/thread_pool_test.o : ${TESTING_DIR}/thread_pool_test.cpp ${INCLUDE_DIR}/thread_pool.h
+${THREAD_POOL_OBJS} : ${TESTING_DIR}/thread_pool_test.cpp ${INCLUDE_DIR}/thread_pool.h
 	${CC} ${CFLAGS} $< -o $@
-${BUILD_DIR}/spin_lock_test.o : ${TESTING_DIR}/spin_lock_test.cpp ${INCLUDE_DIR}/spin_lock.h
+${SPIN_LOCK_OBJS} : ${TESTING_DIR}/spin_lock_test.cpp ${INCLUDE_DIR}/spin_lock.h
 	${CC} ${CFLAGS} $< -o $@
-${BUILD_DIR}/rw_lock_test.o : ${TESTING_DIR}/rw_lock_test.cpp ${INCLUDE_DIR}/rw_lock.h
+${RW_LOCK_OBJS} : ${TESTING_DIR}/rw_lock_test.cpp ${INCLUDE_DIR}/rw_lock.h
 	${CC} ${CFLAGS} $< -o $@
 ${BUILD_DIR}/atomic_test.o : ${TESTING_DIR}/atomic_test.c ${INCLUDE_DIR}/atomic.h
+	${CC} ${CFLAGS} $< -o $@
+${SAFE_QUEUE_OBJS} : ${TESTING_DIR}/safe_queue_test.cpp ${INCLUDE_DIR}/safe_queue.h
 	${CC} ${CFLAGS} $< -o $@
 
 clean : ${INCLUDE_DIR}

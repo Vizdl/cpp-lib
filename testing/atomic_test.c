@@ -2,32 +2,38 @@
 # include<unistd.h>
 # include<pthread.h>
 # include"atomic.h"
+
+int counter = 0;
+#define TIMES 20000
 #define THREAD_COUNT 10
+pthread_t threadid[THREAD_COUNT] = {0};
 
 void* thread_callback(void *arg){
-    int * pcount = (int *)arg;  
     int i = 0;
-
-    while(i++ < 100000){
-        // (*pcount)++;
-        add(pcount,1);
+    while(i++ < TIMES){
+        add(&counter,1);
         usleep(1);
     }
 }
 
 int main (){
-    pthread_t threadid[THREAD_COUNT] = {0}; // 初始化
     int i = 0;
-    int count = 0;
+    void *status;
 
     // 创建线程
     for (i = 0; i < THREAD_COUNT; i++){
-        pthread_create(&threadid[i], NULL, thread_callback, &count);
+        pthread_create(&threadid[i], NULL, thread_callback, NULL);
     }
 
-    for (i = 0; i < 10; i++){
-        printf("count : %d\n", count);
-        sleep(1);
+    
+    for (i = 0; i < THREAD_COUNT; i++){
+        pthread_join(threadid[i], &status);
     }
+
+    if (counter != TIMES * THREAD_COUNT)
+        printf("error!!!\n");
+    else
+        printf("yes!!!\n");
+    
     return 0;
 }

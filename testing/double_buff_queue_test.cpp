@@ -1,7 +1,6 @@
 #include "double_buff_queue.h"
 #include <pthread.h>
 #include <iostream>
-#include <signal.h>
 using namespace std;
 
 double_buff_queue<int> que;
