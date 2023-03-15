@@ -11,7 +11,7 @@
   asm volatile( "lock; cmpxchgl %2,%1"                      \
     : "=a" (__ret), "+m" (*__ptr)                           \
     : "r" (_new), "0" (_old)                                \
-    : "memory"  				                                    \
+    : "memory"  				                            \
   );                                                        \
   __ret;                                                    \
 })

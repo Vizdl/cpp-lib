@@ -22,7 +22,7 @@ int main (){
 
     // 创建线程
     for (i = 0; i < THREAD_COUNT; i++){
-        pthread_create(&threadid[i], NULL, thread_callback, &count);// thread_callback, &count : 函数与其参数
+        pthread_create(&threadid[i], NULL, thread_callback, &count);
     }
 
     for (i = 0; i < 10; i++){
