@@ -21,15 +21,15 @@ all : ${TESTING_BIN}
 
 # bin
 ${BIN_DIR}/double_buff_queue_test : ${DOUBLE_BUFF_QUEUE_OBJS}
-	${LD} ${LDFLAGS} ${DOUBLE_BUFF_QUEUE_OBJS} -o $@
+	${LD} ${DOUBLE_BUFF_QUEUE_OBJS} -o $@ ${LDFLAGS}
 ${BIN_DIR}/thread_pool_test : ${THREAD_POOL_OBJS}
-	${LD} ${LDFLAGS} ${THREAD_POOL_OBJS} -o $@
+	${LD} ${THREAD_POOL_OBJS} -o $@ ${LDFLAGS}
 ${BIN_DIR}/spin_lock_test : ${SPIN_LOCK_OBJS}
-	${LD} ${LDFLAGS} ${THREAD_POOL_OBJS} -o $@
+	${LD} ${THREAD_POOL_OBJS} -o $@ ${LDFLAGS}
 ${BIN_DIR}/rw_lock_test : ${RW_LOCK_OBJS}
-	${LD} ${LDFLAGS} ${THREAD_POOL_OBJS} -o $@
+	${LD} ${THREAD_POOL_OBJS} -o $@ ${LDFLAGS}
 ${BIN_DIR}/atomic_test : ${ATOMIC_OBJS}
-	${LD} ${LDFLAGS} ${ATOMIC_OBJS} -o $@
+	${LD} ${ATOMIC_OBJS} -o $@ ${LDFLAGS}
 
 # testing
 ${BUILD_DIR}/double_buff_queue_test.o : ${TESTING_DIR}/double_buff_queue_test.cpp ${INCLUDE_DIR}/double_buff_queue.h
