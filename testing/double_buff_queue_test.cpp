@@ -7,13 +7,23 @@ using namespace std;
 double_buff_queue<int> que;
 
 void* read(void* data){
-    while (true) cout << que.pop() <<  " ";
+    int max = *((int*)data);
+    int size = 0;
+    while (size < max)
+    {
+        int num = que.pop();
+        if (num != size)
+            cout << "error : " << num << "," << size << endl;
+        size++;
+    }
+    cout << "yes!!!" << endl;
     return NULL;
 }
 
 void* write(void* data){
     int max = *((int*)data);
-    for (int i = 0; i < max; i++) que.push(i);
+    for (int i = 0; i < max; i++) 
+        que.push(i);
     return NULL;
 }
 
@@ -27,10 +37,9 @@ int main (){
     pthread_t read_tid, write_tid;
     void *status;
     int max = 10000000;
-    pthread_create(&read_tid, NULL, read, NULL);
+    pthread_create(&read_tid, NULL, read, (void*)&max);
     pthread_create(&write_tid, NULL, write, (void*)&max);
-    pthread_join(write_tid, &status); // 读结束后,杀死写
-    // 如若写线程处于堵塞,则杀死。
-    pthread_kill(read_tid, SIGKILL);
+    pthread_join(write_tid, &status);
+    pthread_join(read_tid, &status);
     return 0;
 }
