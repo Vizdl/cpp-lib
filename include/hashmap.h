@@ -9,7 +9,7 @@
 struct node {
     int key;                // 该数据不可更改
     int val;                
-    // struct spinlock lock;// 该锁保护 val
+    struct spinlock lock;// 该锁保护 val
     struct list_head list;  // 该数据受到桶内的锁保护
 };
 
@@ -32,7 +32,7 @@ struct node* alloc_node (int key, int val) {
     struct node *node = (struct node *)malloc(sizeof(struct node));
     node->key = key;
     node->val = val;
-    // init_lock(&node->lock);
+    init_lock(&node->lock);
     return node;
 }
 
@@ -52,11 +52,39 @@ int hashmap_insert(struct hashmap *hm, struct node *node) {
     spin_unlock(&bucket->lock);
 }
 
+int hashmap_change(struct hashmap* hm, int key, int val) {
+    struct list_head* pos;
+    struct node* p = NULL;
+    int idx = HASH(key);
+    struct bucket* bucket = &hm->buckets[idx];
+    spin_lock(&bucket->lock);
+    list_for_each(pos, &bucket->head) {
+        p = container_of(pos, struct node, list);
+        if (p->key == key)
+            break;
+    }
+    spin_unlock(&bucket->lock);
+    if (!p)
+        return 0;
+    spin_lock(&p->lock);
+    p->val = val;
+    spin_unlock(&p->lock);
+}
 
-// int hashmap_remove(struct hashmap* hm, int key) {
-//     list_for_each
-// }
- 
-// #define hashmap_for_each(idx, pos, hm) \
-//     for (idx = 0, pos = &((hm)->buckets[idx].head); idx < BUCKET_SIZE; \
-//     pos->next ? (++idx < BUCKET_SIZE ? (pos = &((hm)->buckets[idx].head)) : (pos = NULL)) : (pos = pos->next))
+int hashmap_remove(struct hashmap* hm, int key) {
+    struct list_head* pos;
+    struct node* p = NULL;
+    int idx = HASH(key);
+    struct bucket* bucket = &hm->buckets[idx];
+    spin_lock(&bucket->lock);
+    list_for_each(pos, &bucket->head) {
+        p = container_of(pos, struct node, list);
+        if (p->key == key)
+            break;
+    }
+    spin_unlock(&bucket->lock);
+    if (!p)
+        return 0;
+    list_del(pos);
+    free(p);
+}
