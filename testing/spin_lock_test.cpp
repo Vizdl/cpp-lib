@@ -1,5 +1,4 @@
 # include "spin_lock.h"
-// # include <iostream>
 using namespace std;
 int main(){
     unsigned int spinlock = LOCK_INIT;
