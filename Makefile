@@ -16,10 +16,11 @@ ATOMIC_OBJS = ${BUILD_DIR}/atomic_test.o
 SAFE_QUEUE_OBJS = ${BUILD_DIR}/safe_queue_test.o
 LIST_OBJS = ${BUILD_DIR}/list_test.o
 HASHMAP_OBJS = ${BUILD_DIR}/hashmap_test.o
+REFCOUNT_OBJS = ${BUILD_DIR}/refcount_test.o
 
 TESTING_BIN = ${BIN_DIR}/thread_pool_test ${BIN_DIR}/double_buff_queue_test ${BIN_DIR}/spin_lock_test \
 	${BIN_DIR}/rw_lock_test ${BIN_DIR}/atomic_test ${BIN_DIR}/safe_queue_test ${BIN_DIR}/list_test \
-	${BIN_DIR}/hashmap_test
+	${BIN_DIR}/hashmap_test ${BIN_DIR}/refcount_test
 
 all : ${TESTING_BIN}
 
@@ -40,6 +41,8 @@ ${BIN_DIR}/list_test : ${LIST_OBJS}
 	${LD} $< -o $@ ${LDFLAGS}
 ${BIN_DIR}/hashmap_test : ${HASHMAP_OBJS}
 	${LD} $< -o $@ ${LDFLAGS}
+${BIN_DIR}/refcount_test : ${REFCOUNT_OBJS}
+	${LD} $< -o $@ ${LDFLAGS}
 
 # testing
 ${DOUBLE_BUFF_QUEUE_OBJS} : ${TESTING_DIR}/double_buff_queue_test.cpp ${INCLUDE_DIR}/double_buff_queue.h
@@ -58,7 +61,8 @@ ${LIST_OBJS} : ${TESTING_DIR}/list_test.c ${INCLUDE_DIR}/list.h
 	${CC} ${CFLAGS} $< -o $@
 ${HASHMAP_OBJS} : ${TESTING_DIR}/hashmap_test.c ${INCLUDE_DIR}/hashmap.h
 	${CC} ${CFLAGS} $< -o $@
-
+${REFCOUNT_OBJS} : ${TESTING_DIR}/refcount_test.c
+	${CC} ${CFLAGS} $< -o $@
 
 clean : ${INCLUDE_DIR}
 	rm -f ${BIN_DIR}/*
