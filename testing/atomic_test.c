@@ -24,8 +24,7 @@ int main (){
     for (i = 0; i < THREAD_COUNT; i++){
         pthread_create(&threadid[i], NULL, thread_callback, NULL);
     }
-
-    
+    // 等待线程
     for (i = 0; i < THREAD_COUNT; i++){
         pthread_join(threadid[i], &status);
     }

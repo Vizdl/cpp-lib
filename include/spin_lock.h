@@ -1,8 +1,8 @@
 #ifndef __SPINLOCK__
 #define __SPINLOCK__
 
-#include <cstdint>
-#include <cstdio>
+#include <stdint.h>
+#include <stdio.h>
 // 带参宏 
 // <==> cmpxchg(void* ptr, int old, int new)
 #define cmpxchg( ptr, _old, _new ) ({                       \
