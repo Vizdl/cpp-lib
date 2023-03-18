@@ -3,7 +3,7 @@
 #include<pthread.h>
 #include "spin_lock.h"
 
-unsigned int spinlock;
+struct spinlock lock;
 int counter = 0;
 #define TIMES 2000000
 #define THREAD_COUNT 10
@@ -12,9 +12,9 @@ pthread_t threadid[THREAD_COUNT] = {0};
 void* thread_callback(void *arg){
     int i = 0;
     while(i++ < TIMES){
-        lock(&spinlock);
+        spin_lock(&lock);
         counter++;
-        unlock(&spinlock);
+        spin_unlock(&lock);
     }
 }
 
@@ -23,14 +23,13 @@ int main (){
     void *status;
 
     // 初始化 spinlock
-    init_lock(&spinlock);
+    init_lock(&lock);
 
     // 创建线程
     for (i = 0; i < THREAD_COUNT; i++){
         pthread_create(&threadid[i], NULL, thread_callback, NULL);
     }
 
-    
     for (i = 0; i < THREAD_COUNT; i++){
         pthread_join(threadid[i], &status);
     }

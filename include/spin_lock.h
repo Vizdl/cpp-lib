@@ -26,12 +26,16 @@
 
 #define LOCK_INIT 0
 
-void init_lock(unsigned int* spinlock){
-    *spinlock = 0;
+struct spinlock {
+    unsigned int flags;
+};
+
+void init_lock(struct spinlock* lock){
+    lock->flags = 0;
 }
 
-void lock(unsigned int* spinlock){
-    while (cmpxchg(spinlock, 0, 1))
+void spin_lock(struct spinlock* lock){
+    while (cmpxchg(&lock->flags, 0, 1))
     {
 #ifdef __DEBUG__
         printf("sleep on\n");
@@ -42,8 +46,8 @@ void lock(unsigned int* spinlock){
 #endif
 }
 
-void unlock(unsigned int* spinlock){
-    setZero(spinlock);
+void spin_unlock(struct spinlock* lock){
+    setZero(&lock->flags);
 }
 
 #endif
