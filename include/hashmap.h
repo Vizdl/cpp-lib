@@ -1,19 +1,21 @@
 #include "list.h"
+#include "atomic.h"
 #include <pthread.h>
 #include <memory.h>
-#include "spin_lock.h"
-#include "atomic.h"
+
+// #define ATOMIC 1
+
 // 2 的次方
-#define BUCKET_SIZE 8192
+#define BUCKET_SIZE 65536
 #define HASH(key) (key & (BUCKET_SIZE - 1))
 
 int counter = 0;
 
 struct node {
     int key;                // 该数据不可更改
-    int val;                
+    int val;  
     int refcnt;             // 引用计数
-    struct spinlock lock;   // 该锁保护 val
+    pthread_mutex_t lock;
     struct list_head list;  // 该数据受到桶内的锁保护
 };
 
@@ -26,25 +28,43 @@ struct hashmap {
     struct bucket buckets[BUCKET_SIZE];
 };
 
+#define mb() 	asm volatile("mfence":::"memory")
+#define rmb()	asm volatile("lfence":::"memory")
+#define wmb()	asm volatile("sfence":::"memory")
+
 struct node* create_node (int key, int val) {
     struct node *node = (struct node *)malloc(sizeof(struct node));
     node->key = key;
     node->val = val;
     node->refcnt = 1;
-    init_lock(&node->lock);
+    pthread_mutex_init(&node->lock, NULL);
     return node;
 }
 
 void node_release(struct node *p) {
-    int new_count = __sync_sub_and_fetch(&p->refcnt, 1);
-    if (new_count == 0) {
+#ifdef ATOMIC
+    int new_count = add(&p->refcnt, -1);
+    wmb();
+    if (new_count == 1) {
         free(p);
         add(&counter,1);
     }
+#else
+    int new_count = __sync_sub_and_fetch(&p->refcnt, 1);
+    if (new_count == 0) {
+        free(p);
+        __sync_add_and_fetch(&counter,1);
+    }
+#endif
 }
 
 void node_add_ref(struct node *p) {
+#ifdef ATOMIC
+    add(&p->refcnt, 1);
+    wmb();
+#else
     __sync_add_and_fetch(&p->refcnt, 1);
+#endif
 }
 
 static struct node* find_by_key(struct hashmap* hm, int key) {
@@ -55,8 +75,11 @@ static struct node* find_by_key(struct hashmap* hm, int key) {
     pthread_mutex_lock(&bucket->lock);
     list_for_each(pos, &bucket->head) {
         p = container_of(pos, struct node, list);
-        if (p->key == key)
+        node_add_ref(p);
+        if (p->key == key) {
             break;
+        }
+        node_release(p);
         p = NULL;
     }
     pthread_mutex_unlock(&bucket->lock);
@@ -77,25 +100,23 @@ int init_hashmap(struct hashmap* hm) {
     return 0;
 }
 
-int hashmap_insert(struct hashmap *hm, struct node *node) {
-    int idx = HASH(node->key);
+int hashmap_insert(struct hashmap *hm, struct node *p) {
+    int idx = HASH(p->key);
     struct bucket* bucket = &hm->buckets[idx];
-    node_add_ref(node);
     pthread_mutex_lock(&bucket->lock);
-    list_add_tail(&node->list, &bucket->head);
+    node_add_ref(p);
+    list_add_tail(&p->list, &bucket->head);
     pthread_mutex_unlock(&bucket->lock);
 }
 
 int hashmap_inc(struct hashmap* hm, int key) {
     struct node *p = find_by_key(hm, key);
     if (!p) {
-        // printf("hashmap inc find null : %d\n", key);
         return 0;
     }
-    node_add_ref(p);
-    spin_lock(&p->lock);
+    pthread_mutex_lock(&p->lock);
     p->val++;
-    spin_unlock(&p->lock);
+    pthread_mutex_unlock(&p->lock);
     node_release(p);
 }
 
@@ -107,12 +128,16 @@ struct node* hashmap_remove(struct hashmap* hm, int key) {
     pthread_mutex_lock(&bucket->lock);
     list_for_each(pos, &bucket->head) {
         p = container_of(pos, struct node, list);
-        if (p->key == key)
+        node_add_ref(p);
+        if (p->key == key) {
             break;
+        }
+        node_release(p);
         p = NULL;
     }
     if (p != NULL) {
         list_del(&p->list);
+        node_release(p);
     }
     pthread_mutex_unlock(&bucket->lock);
     return p;

@@ -8,7 +8,6 @@ struct hashmap hm;
 
 #define THREAD_COUNT 30
 pthread_t threadid[THREAD_COUNT] = {0};
-pthread_t threadid2[THREAD_COUNT] = {0};
 
 void* thread_insert(void *arg){
     int i = 0;
@@ -64,7 +63,7 @@ int main (){
         printf("yes : sum : %d\n", sum);
     else
         printf("error : sum : %d\n", sum);
-    
+#if 0
     // 多修改
     for (i = 0; i < THREAD_COUNT; i++){
         pthread_create(&threadid[i], NULL, thread_inc, NULL);
@@ -84,6 +83,8 @@ int main (){
         printf("yes : sum : %d\n", sum);
     else
         printf("error : sum : %d\n", sum);
+#endif
+
 #if 0
     // 多删
     for (i = 0; i < THREAD_COUNT; i++){
@@ -122,7 +123,11 @@ int main (){
             sum += p->val;
         }
     }
-    printf("free : %d\n", counter);
+    if (counter != THREAD_COUNT * (BUCKET_SIZE))
+        printf("error : free = %d\n", counter);
+    else
+        printf("yes : free = %d\n", counter);
+
     // 能到达这里说明没问题
     if (sum == 0)
         printf("yes : sum : %d\n", sum);

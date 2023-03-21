@@ -11,7 +11,7 @@ pthread_t threadid[THREAD_COUNT] = {0};
 void* thread_callback(void *arg){
     int i = 0;
     while(i++ < TIMES){
-        add(&counter,1);
+        add(&counter,-1);
         usleep(1);
     }
 }
@@ -29,7 +29,7 @@ int main (){
         pthread_join(threadid[i], &status);
     }
 
-    if (counter != TIMES * THREAD_COUNT)
+    if (0 - counter != TIMES * THREAD_COUNT)
         printf("error!!!\n");
     else
         printf("yes!!!\n");
