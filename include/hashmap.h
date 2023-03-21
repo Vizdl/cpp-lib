@@ -3,10 +3,10 @@
 #include <pthread.h>
 #include <memory.h>
 
-// #define ATOMIC 1
+#define ATOMIC 1
 
 // 2 的次方
-#define BUCKET_SIZE 65536
+#define BUCKET_SIZE 131072
 #define HASH(key) (key & (BUCKET_SIZE - 1))
 
 int counter = 0;
@@ -44,7 +44,6 @@ struct node* create_node (int key, int val) {
 void node_release(struct node *p) {
 #ifdef ATOMIC
     int new_count = add(&p->refcnt, -1);
-    wmb();
     if (new_count == 1) {
         free(p);
         add(&counter,1);
@@ -61,7 +60,9 @@ void node_release(struct node *p) {
 void node_add_ref(struct node *p) {
 #ifdef ATOMIC
     add(&p->refcnt, 1);
-    wmb();
+    // 这里是否需要加写内存屏障来保证refcnt真正地写到内存里去了,防止在 node_release 时会读出更小的 refcnt 值?
+    // 这里不需要加内存屏障,因为在 x86 中使用 lock 指令时会自动加一个完整的内存屏障(MFENCE)。
+    // wmb();
 #else
     __sync_add_and_fetch(&p->refcnt, 1);
 #endif
