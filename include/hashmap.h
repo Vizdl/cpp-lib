@@ -76,11 +76,10 @@ static struct node* find_by_key(struct hashmap* hm, int key) {
     pthread_mutex_lock(&bucket->lock);
     list_for_each(pos, &bucket->head) {
         p = container_of(pos, struct node, list);
-        node_add_ref(p);
         if (p->key == key) {
+            node_add_ref(p);
             break;
         }
-        node_release(p);
         p = NULL;
     }
     pthread_mutex_unlock(&bucket->lock);
@@ -129,11 +128,10 @@ struct node* hashmap_remove(struct hashmap* hm, int key) {
     pthread_mutex_lock(&bucket->lock);
     list_for_each(pos, &bucket->head) {
         p = container_of(pos, struct node, list);
-        node_add_ref(p);
         if (p->key == key) {
+            node_add_ref(p);
             break;
         }
-        node_release(p);
         p = NULL;
     }
     if (p != NULL) {
