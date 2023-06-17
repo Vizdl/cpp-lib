@@ -14,7 +14,7 @@ int counter = 0;
 struct node {
     int key;                // 该数据不可更改
     int val;  
-    int refcnt;             // 引用计数
+    int refcnt;             // 引用计数,这里的引用计数真的能保护释放么?并不能,如若 node 已经被释放了,那么访问 node->refcnt 本身就是一种错误！！！
     pthread_mutex_t lock;
     struct list_head list;  // 该数据受到桶内的锁保护
 };
