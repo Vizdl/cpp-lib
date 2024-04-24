@@ -13,9 +13,9 @@ void* thread_insert(void *arg){
     int i = 0;
     int data = (int)arg;
     for (i = 0; i < BUCKET_SIZE; i++){
-        struct node *node = create_node(data * BUCKET_SIZE + i, 1);
+        struct node *node = alloc_hm_node(data * BUCKET_SIZE + i, 1);
         hashmap_insert(&hm, node);
-        node_release(node);
+        put_hm_node(node);
     }
 }
 
@@ -31,7 +31,7 @@ void* thread_remove(void *arg){
     for (i = 0; i < THREAD_COUNT; i++)
         for (j = 0; j < BUCKET_SIZE; j++) {
             struct node *node = hashmap_remove(&hm, i * BUCKET_SIZE + j);
-            node_release(node);
+            put_hm_node(node);
         }
 }
 
